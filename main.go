@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -26,8 +27,39 @@ const startupMessage = `
 [0m
 `
 
+// isIPAddress checks if the given host string is an IP address (with or without port)
+func isIPAddress(host string) bool {
+	// Remove port if present
+	hostOnly := host
+	if strings.Contains(host, ":") {
+		var err error
+		hostOnly, _, err = net.SplitHostPort(host)
+		if err != nil {
+			// If we can't split host:port, treat the whole thing as host
+			hostOnly = host
+		}
+	}
+
+	// Check if it's an IP address
+	return net.ParseIP(hostOnly) != nil
+}
+
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// Check if the request has a proper Host header
+		host := r.Host
+		if host == "" {
+			http.Error(w, "Bad Request: Missing Host header", http.StatusBadRequest)
+			return
+		}
+
+		// Prevent direct IP access - allow only domain names
+		// This helps with Cloudflare Error 1003
+		if isIPAddress(host) {
+			http.Error(w, "Direct IP access not allowed. Please use the domain name.", http.StatusForbidden)
+			return
+		}
+
 		fmt.Fprintf(w, "Hello! you've requested %s\n", r.URL.Path)
 	})
 
