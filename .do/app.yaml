@@ -6,3 +6,27 @@ services:
     deploy_on_push: true
     repo: digitalocean/sample-dockerfile
   name: sample-dockerfile
+  env:
+    - key: ENVIRONMENT
+      value: production
+  instance_size_slug: basic-xxs
+  instance_count: 1
+  region: syd1
+  tags:
+    - website
+    - docker
+- dockerfile_path: Dockerfile
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: digitalocean/sample-dockerfile
+  name: sample-dockerfile-staging
+  env:
+    - key: ENVIRONMENT
+      value: staging
+  instance_size_slug: basic-xxs
+  instance_count: 1
+  region: syd1
+  tags:
+    - staging
+    - docker
