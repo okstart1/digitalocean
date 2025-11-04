@@ -5,7 +5,7 @@
 echo "🚀 Starting Go application locally..."
 
 # Set local port (different from production port 80)
-export PORT=8080
+export PORT=80
 
 # Initialize Go module if needed
 if [ ! -f "go.mod" ]; then
